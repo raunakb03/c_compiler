@@ -4,6 +4,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#define NUMERIC_CASE \
+case '0': \
+case '1': \
+case '2': \
+case '3': \
+case '4': \
+case '5': \
+case '6': \
+case '7': \
+case '8': \
+case '9'
+
 enum {
     COMPILER_FILE_COMPILED_OK,
     COMPILER_FAILED_WITH_ERRORS
@@ -40,6 +52,7 @@ struct pos {
 struct token {
     int type;
     int flags;
+    struct pos pos;
     union {
         char cval;
         const char* sval;
@@ -80,6 +93,8 @@ struct lex_process {
 
 int compile_file(const char* file_name, const char* out_filename, int flags);
 struct compile_process* compile_process_create(const char* filename, const char* out_filename, int flags);
+void compiler_error(struct compile_process* compiler, const char* msg, ...);
+void compiler_warning(struct compile_process* compiler, const char* msg, ...);
 
 char compile_process_next_char(struct lex_process* lex_process);
 char compile_process_peek_char(struct lex_process* lex_process);
@@ -90,6 +105,6 @@ void lex_process_free(struct lex_process* process);
 void* lex_process_private(struct lex_process* process);
 struct vector* lex_process_tokens(struct lex_process* process);
 
-int lex(struct lex_process* lex_process);
+int lex(struct lex_process* process);
 
 #endif
