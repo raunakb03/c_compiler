@@ -36,6 +36,16 @@ case ',': \
 case '.': \
 case '?'
 
+#define SYMBOL_CASE \
+case '{': \
+case '}': \
+case ':': \
+case ';': \
+case '#': \
+case '\\': \
+case ')': \
+case ']'
+
 #define S_EQ(str1, str2) \
     (str1 && str2 && (strcmp(str1, str2) == 0))
 
