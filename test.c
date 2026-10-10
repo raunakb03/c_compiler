@@ -11,3 +11,5 @@ This is the multiline comment
 */
 
 '\t'
+
+0xAB7H

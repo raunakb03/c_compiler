@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
@@ -378,6 +379,47 @@ static struct token* token_make_quote() {
     return token_create(&(struct token){.type=TOKEN_TYPE_NUMBER, .cval=c});
 }
 
+static void lexer_pop_token() {
+    vector_pop(lex_process->token_vec);
+}
+
+static bool is_hex_char(char c) {
+    return (c >= '0' && c <= '9') ||
+    (c >= 'a' && c <= 'f') ||
+    (c >= 'A' && c <= 'F');
+}
+
+static const char* read_hex_number_str() {
+    struct buffer* buffer = buffer_create();
+    char c = peekc();
+    LEX_GETC_IF(buffer, c, is_hex_char(c));
+    buffer_write(buffer, 0x00); 
+    return buffer_ptr(buffer);
+}
+
+static struct token* token_make_special_number_hexadecimal() {
+    nextc();
+
+    unsigned long number = 0;
+    const char* number_str = read_hex_number_str();
+    number = strtol(number_str, 0, 16);
+    return token_make_number_for_value(number);
+}
+
+static struct token* token_make_special_number() {
+    struct token* token = NULL;
+    struct token* last_token = lexer_last_token();
+
+    lexer_pop_token();
+
+    char c = peekc();
+    if (c == 'x') {
+        token = token_make_special_number_hexadecimal();
+    }
+
+    return token;
+}
+
 struct token* read_next_token() {
     struct token* token = NULL;
     char c = peekc();
@@ -405,6 +447,9 @@ struct token* read_next_token() {
             break;
         case '\'':
             token = token_make_quote();
+            break;
+        case 'x':
+            token = token_make_special_number();
             break;
         case '\n':
             token = token_make_newline();
