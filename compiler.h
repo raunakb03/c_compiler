@@ -71,6 +71,13 @@ enum {
     TOKEN_TYPE_NEWLINE
 };
 
+enum {
+    NUMBER_TYPE_NORMAL,
+    NUMBER_TYPE_LONG,
+    NUMBER_TYPE_FLOAT,
+    NUMBER_TYPE_DOUBLE
+};
+
 struct lex_process;
 
 typedef char (*LEX_PROCESS_NEXT_CHAR)(struct lex_process* process);
@@ -95,6 +102,9 @@ struct token {
         unsigned long long llnum;
         void* any;
     };
+    struct token_number {
+        int type;
+    } num;
     bool whitespace;
     const char* between_brackets;
 };
@@ -106,6 +116,7 @@ struct compile_process {
         FILE* fp;
         const char* abs_path;
     } cfile;
+    struct vector* token_vec;
     FILE* ofile;
 };
 
@@ -140,6 +151,7 @@ void* lex_process_private(struct lex_process* process);
 struct vector* lex_process_tokens(struct lex_process* process);
 
 int lex(struct lex_process* process);
+struct lex_process* tokens_build_for_string(struct compile_process* compiler, const char* str);
 
 bool token_is_keyword(struct token* token, const char* value);
 
